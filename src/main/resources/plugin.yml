@@ -1,0 +1,9 @@
+name: ServerGuard
+main: net.chanakancloud.serverguard.ServerGuard
+version: 1.0
+author : Chanakan Mungtin
+api-version: 1.17
+commands:
+  serverguard:
+    aliases: [sg]
+    description: "The main command for ServerGuard"
