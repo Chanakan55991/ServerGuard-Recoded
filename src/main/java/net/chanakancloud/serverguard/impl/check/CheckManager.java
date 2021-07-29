@@ -3,6 +3,8 @@ package net.chanakancloud.serverguard.impl.check;
 import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyA;
 import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyB;
 import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyC;
+import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyD;
+import net.chanakancloud.serverguard.impl.check.impl.test.SensitivityA;
 
 import java.util.List;
 
@@ -11,7 +13,9 @@ public class CheckManager {
     public static final List<Class<? extends Check>> CHECK_CLASSES = List.of(
             FlyA.class,
             FlyB.class,
-            FlyC.class
+            FlyC.class,
+            FlyD.class,
+            SensitivityA.class
     );
 
     public static Class<? extends Check> getCheckClass(String name) {

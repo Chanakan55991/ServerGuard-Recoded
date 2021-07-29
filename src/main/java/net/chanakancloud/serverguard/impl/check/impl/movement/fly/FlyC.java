@@ -36,6 +36,11 @@ public class FlyC extends Check {
             return;
         if(resetting) return;
         if(player.isFlying()) return;
+        if(player.isInsideVehicle() && deltaY < playerData.lastDeltaY) {
+            buffer = Math.max(0, buffer - 1.25);
+            return;
+        }
+
 
         if(ServerUtil.lowTPS())
             return;
@@ -45,6 +50,7 @@ public class FlyC extends Check {
 
         if(Utilities.isNearLiquid(movementData.to) || Utilities.isNearClimbable(movementData.to) || movementData.getTouchingClimbable().get() || movementData.getTouchingLiquid().get())
         {
+            buffer = Math.max(0, buffer - 1.25);
             playerData.airTicks = 0;
             return;
         }
@@ -53,7 +59,7 @@ public class FlyC extends Check {
             if(ticks > 10 && Math.abs(estimation - deltaY) > 0.01) {
                 buffer += 1.5;
 
-                if(buffer > 5)
+                if(buffer > 7)
                     flag("estimation=" + estimation, "deltaY=" + deltaY);
             } else {
                 buffer = Math.max(0, buffer - 1.25);

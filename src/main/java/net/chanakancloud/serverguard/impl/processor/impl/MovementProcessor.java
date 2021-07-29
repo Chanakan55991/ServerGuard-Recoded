@@ -44,7 +44,16 @@ public class MovementProcessor extends Processor {
         Location from = event.getFrom();
         Location to = event.getTo();
 
+        //boolean inAir = false;
         boolean inAir = !(to.getY() % (1d/64d) < 0.0001);
+        /*for(Block block : Utilities.getNearbyBlocksHorizontally(to, 1)) {
+            if(block.getType() != Material.AIR) {
+                inAir = false;
+                break;
+            } else {
+                inAir = true;
+            }
+        }*/
         playerData.airTicks = inAir ? playerData.getAirTicks() + 1 : 0;
 
         List<MovementData.MovementType> movementTypes = new ArrayList<>();

@@ -9,6 +9,7 @@ import net.chanakancloud.serverguard.impl.common.MovementData;
 import net.chanakancloud.serverguard.impl.player.PlayerData;
 import net.chanakancloud.serverguard.utils.Utilities;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
 @CheckInfo(name = "Fly (B)", type = CheckType.MOVEMENT, experimental = true)

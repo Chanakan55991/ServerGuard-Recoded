@@ -43,6 +43,7 @@ public class FlyA extends Check {
 
         if(Utilities.isNearLiquid(movementData.to) || movementData.getTouchingLiquid().get() || movementData.getTouchingClimbable().get())
         {
+            playerData.flyThreshold -= playerData.flyThreshold > 0 ? 0.1f : 0;
             playerData.airTicks = 0;
             return;
         }
