@@ -73,9 +73,8 @@ public class Check {
         String message = ChatColor.stripColor(String.join(", ", data)).trim();
         String checkName = (checkInfo.experimental() ? "§7§o*" : "§f") + checkInfo.name();
         for (Player staff : Bukkit.getOnlinePlayers()) {
-            if (!staff.hasPermission("serverguard.alert"))
-                continue;
-            staff.sendMessage("§8[§6§lAC§8] §f" + player.getName() + " §7flagged " + checkName + " §c(x" + violations + ")" +
+            if (staff.hasPermission("serverguard.alert"))
+                staff.sendMessage("§8[§6§lServerGuard§8] §f" + player.getName() + " §7flagged " + checkName + " §c(" + violations + " VL)" +
                     (message.isEmpty() ? "" : " §7[" + message + "]"));
         }
         if (violations >= checkInfo.maxVl() && checkInfo.ban() && !checkInfo.experimental() && !playerData.isBanned()) {

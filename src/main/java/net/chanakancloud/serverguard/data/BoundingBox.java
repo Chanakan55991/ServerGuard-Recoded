@@ -145,13 +145,6 @@ public final class BoundingBox {
             }
         }
 
-        for (int z = fifth - 10; z < 10; ++z) {
-            for (int y = third - 10; y < 10; ++y) {
-                for (int x = first - 10; x < 10; ++x) {
-                    list.add(world.getBlockAt(x, y, z));
-                }
-            }
-        }
 
         return list.stream().allMatch(block -> predicate.test(block.getType()));
     }

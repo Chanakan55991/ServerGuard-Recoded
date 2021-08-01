@@ -2,19 +2,21 @@ package net.chanakancloud.serverguard;
 
 import io.github.retrooper.packetevents.PacketEvents;
 import io.github.retrooper.packetevents.settings.PacketEventsSettings;
-import io.github.retrooper.packetevents.utils.server.ServerVersion;
 import live.chanakancloud.taputils.TapUtils;
 import live.chanakancloud.taputils.utils.MiscUtils;
 import lombok.Getter;
 import net.chanakancloud.serverguard.impl.command.ServerguardCommand;
 import net.chanakancloud.serverguard.impl.player.PlayerData;
 import net.chanakancloud.serverguard.impl.player.PlayerDataManager;
+import net.chanakancloud.serverguard.impl.processor.Processor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
 
 @Getter
@@ -22,6 +24,7 @@ public class ServerGuard extends JavaPlugin {
     public static ServerGuard INSTANCE;
     private PacketEvents packetEvents;
     private double[] recentTps;
+    private ClassLoader materialAccessClassLoader;
 
     @Override
     public void onLoad() {
@@ -54,4 +57,5 @@ public class ServerGuard extends JavaPlugin {
         for (Player player : Bukkit.getOnlinePlayers())
             PlayerData.cleanup(player);
     }
+
 }

@@ -5,6 +5,7 @@ import io.github.retrooper.packetevents.event.impl.PacketPlayReceiveEvent;
 import io.github.retrooper.packetevents.event.impl.PacketPlaySendEvent;
 import io.github.retrooper.packetevents.packettype.PacketType;
 import io.github.retrooper.packetevents.packetwrappers.NMSPacket;
+import live.chanakancloud.taputils.utils.MiscUtils;
 import lombok.NonNull;
 import net.chanakancloud.serverguard.ServerGuard;
 import net.chanakancloud.serverguard.impl.player.PlayerData;
@@ -24,29 +25,25 @@ public class PacketProcessor extends Processor {
         if(!player.getUniqueId().equals(playerData.getBukkitPlayer().getUniqueId()))
             return;
 
-        switch(event.getPacketId()) {
-            case PacketType.Play.Client.KEEP_ALIVE: {
-                ping = ServerGuard.INSTANCE.getPacketEvents().getPlayerUtils().getPing(player);
-                break;
-            }
-            case PacketType.Play.Client.FLYING: {
-                lastFlying = System.currentTimeMillis();
-                break;
-            }
+        switch (event.getPacketId()) {
+            case PacketType.Play.Client.KEEP_ALIVE -> ping = ServerGuard.INSTANCE.getPacketEvents().getPlayerUtils().getPing(player);
+            case PacketType.Play.Client.FLYING -> lastFlying = System.currentTimeMillis();
         }
 
-        hopperIntoChecks(event);
+        hopperIntoChecks(event, event.getPlayer());
     }
 
     @Override
     public void onPacketPlaySend(PacketPlaySendEvent event) {
+        if(playerData.getBukkitPlayer() == null)
+            return;
         if(!event.getPlayer().getUniqueId().equals(playerData.getBukkitPlayer().getUniqueId()))
             return;
 
-        hopperIntoChecks(event);
+        hopperIntoChecks(event, event.getPlayer());
     }
 
-    private void hopperIntoChecks(@NonNull CancellableNMSPacketEvent nmsPacketEvent) {
+    private void hopperIntoChecks(@NonNull CancellableNMSPacketEvent nmsPacketEvent, Player player) {
         NMSPacket nmsPacket = nmsPacketEvent.getNMSPacket();
         long timestamp = System.currentTimeMillis();
         playerData.getChecks().parallelStream().forEach(check ->

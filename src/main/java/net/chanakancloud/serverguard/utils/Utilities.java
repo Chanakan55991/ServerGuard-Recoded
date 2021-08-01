@@ -1,12 +1,12 @@
 package net.chanakancloud.serverguard.utils;
 
-import cc.funkemunky.api.utils.ReflectionsUtil;
-import live.chanakancloud.taputils.utils.BlockUtils;
-import live.chanakancloud.taputils.utils.MiscUtils;
 import live.chanakancloud.taputils.utils.XMaterial;
+import net.chanakancloud.serverguard.ServerGuard;
 import net.chanakancloud.serverguard.impl.common.MovementData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -21,10 +21,9 @@ import java.util.concurrent.CompletableFuture;
 public class Utilities {
     private static final float ONGROUNDBOUNDINGBOXWITDH = 0.4f;
     private static final float ONGROUNDBOUNDINGBOXHEIGHT = 0.7f;
-    private static boolean underBlock;
+    private static volatile int water;
+    private static volatile int climbable;
     private static final List<Material> CLIMBABLE = new ArrayList<Material>();
-    public static volatile int water = 0;
-    public static volatile int climbable = 0;
 
     public static boolean isNearWater(Player player) {
         return player.getLocation().getBlock().isLiquid()
@@ -43,9 +42,9 @@ public class Utilities {
     public static Set<Block> getNearbyBlocksHorizontally(Location location, int radius) {
         Set<Block> blocks = new HashSet<>();
 
-        for(int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
-            for(int y = location.getBlockY(); y <= location.getBlockY(); y++) {
-                for(int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
+        for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
+            for (int y = location.getBlockY(); y <= location.getBlockY(); y++) {
+                for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
                     blocks.add(location.getWorld().getBlockAt(x, y, z));
                 }
             }
@@ -57,9 +56,9 @@ public class Utilities {
     public static Set<Block> getNearbyBlocksVertically(Location location, int radius) {
         Set<Block> blocks = new HashSet<>();
 
-        for(int x = location.getBlockX(); x <= location.getBlockX() + radius; x++) {
-            for(int y = location.getBlockY(); y - radius <= location.getBlockY(); y++) {
-                for(int z = location.getBlockZ(); z <= location.getBlockZ() + radius; z++) {
+        for (int x = location.getBlockX(); x <= location.getBlockX() + radius; x++) {
+            for (int y = location.getBlockY(); y - radius <= location.getBlockY(); y++) {
+                for (int z = location.getBlockZ(); z <= location.getBlockZ() + radius; z++) {
                     blocks.add(location.getWorld().getBlockAt(x, y, z));
                 }
             }
@@ -161,6 +160,10 @@ public class Utilities {
      * @param location location to check
      * @return true if near climbable block
      */
+    // if (material.name().contains("LADDER") || material.name().contains("VINE") || material.name().contains("SCAFFOLD")) {
+    //                    climbable++;
+    //                }
+
     public static boolean isNearClimbable(Location location) {
         double limit = 0.22;
         for (double x = -limit; x < limit + 0.1; x += limit) {
@@ -178,14 +181,9 @@ public class Utilities {
                 });
             }
         }
-        return climbable > 0;
-    }
-
-    public static boolean couldBeOnHalfblock(Location location) {
-        return isNearHalfblock(
-                new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getBlockZ()))
-                || isNearHalfblock(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
-                location.getBlockZ()));
+        boolean climbableRes = climbable > 0;
+        climbable = 0;
+        return climbableRes;
     }
 
     public synchronized static boolean isNearLiquid(Location loc) {
@@ -205,8 +203,20 @@ public class Utilities {
                 });
             }
         }
-        return water > 3;
+        boolean waterRes = water > 3;
+        water = 0;
+        return waterRes;
     }
+
+    public static boolean couldBeOnHalfblock(Location location) {
+        return isNearHalfblock(
+                new Location(location.getWorld(), location.getX(), location.getY() - 0.01D, location.getBlockZ()))
+                || isNearHalfblock(new Location(location.getWorld(), location.getX(), location.getY() - 0.51D,
+                location.getBlockZ()));
+    }
+
+
+
 
     public static boolean isClimbableBlock(Block block) {
         return CLIMBABLE.contains(block.getType());
@@ -265,8 +275,8 @@ public class Utilities {
     }
 
     public static boolean isNearMaterials(Location loc, Material... materials) {
-        for(Material s  : materials) {
-            if(isNearMaterial(loc, s)) {
+        for (Material s : materials) {
+            if (isNearMaterial(loc, s)) {
                 return true;
             }
         }
@@ -277,22 +287,18 @@ public class Utilities {
         return loc.getBlock().getType() == material;
     }
 
-    public static double getPopularElement(Double[] a)
-    {
+    public static double getPopularElement(Double[] a) {
         int count = 1, tempCount;
         double popular = a[0];
         double temp = 0;
-        for (int i = 0; i < (a.length - 1); i++)
-        {
+        for (int i = 0; i < (a.length - 1); i++) {
             temp = a[i];
             tempCount = 0;
-            for (int j = 1; j < a.length; j++)
-            {
+            for (int j = 1; j < a.length; j++) {
                 if (temp == a[j])
                     tempCount++;
             }
-            if (tempCount > count)
-            {
+            if (tempCount > count) {
                 popular = temp;
                 count = tempCount;
             }

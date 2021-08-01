@@ -45,10 +45,11 @@ public class FlyC extends Check {
         if(ServerUtil.lowTPS())
             return;
 
-        //final boolean illegal = Utilities.isNearWater(player) || Utilities.isNearClimbable(player);
+        final boolean illegal = Utilities.isNearWater(player) || Utilities.isNearClimbable(player);
         //check water & climbable
 
-        if(Utilities.isNearLiquid(movementData.to) || Utilities.isNearClimbable(movementData.to) || movementData.getTouchingClimbable().get() || movementData.getTouchingLiquid().get())
+        debug("estimation=" + estimation, "deltaY=" + deltaY, "touching" + (movementData.getTouchingClimbable().get() || movementData.getTouchingLiquid().get()));
+        if(illegal || movementData.getTouchingClimbable().get() || movementData.getTouchingLiquid().get())
         {
             buffer = Math.max(0, buffer - 1.25);
             playerData.airTicks = 0;
@@ -56,10 +57,10 @@ public class FlyC extends Check {
         }
         if(playerData.airTicks > 4 && !(movementData.to.getY() % (1d/64d) < 0.0001)) {
             ++ticks;
-            if(ticks > 10 && Math.abs(estimation - deltaY) > 0.01) {
+            if(ticks > 2 && Math.abs(estimation - deltaY) > 0.01) {
                 buffer += 1.5;
 
-                if(buffer > 7)
+                if(buffer > 2.2)
                     flag("estimation=" + estimation, "deltaY=" + deltaY);
             } else {
                 buffer = Math.max(0, buffer - 1.25);
@@ -68,7 +69,6 @@ public class FlyC extends Check {
             ticks = 0;
         }
 
-        debug("estimation=" + estimation, "deltaY=" + deltaY);
         playerData.lastDeltaY = (float) deltaY;
     }
 }

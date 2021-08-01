@@ -1,92 +1,76 @@
 package net.chanakancloud.serverguard.impl.processor.impl;
 
-import cc.funkemunky.api.utils.ReflectionsUtil;
-import live.chanakancloud.taputils.TapUtils;
+import io.github.retrooper.packetevents.event.impl.PacketPlayReceiveEvent;
+import io.github.retrooper.packetevents.packettype.PacketType;
+import io.github.retrooper.packetevents.packetwrappers.play.in.flying.WrappedPacketInFlying;
 import live.chanakancloud.taputils.utils.MiscUtils;
-import lombok.Getter;
 import lombok.NonNull;
 import net.chanakancloud.serverguard.data.BoundingBox;
 import net.chanakancloud.serverguard.impl.common.MovementData;
 import net.chanakancloud.serverguard.impl.player.PlayerData;
 import net.chanakancloud.serverguard.impl.processor.Processor;
-import net.chanakancloud.serverguard.observable.Observable;
-import net.chanakancloud.serverguard.utils.Utilities;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.type.Stairs;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.material.Step;
 
-import java.sql.Ref;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MovementProcessor extends Processor {
-    public double deltaY;
+    private Location from = null;
+
     public MovementProcessor(@NonNull PlayerData playerData) {
         super(playerData);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    private void onMove(PlayerMoveEvent event) {
-        final Object[] entities = playerData.getBukkitPlayer().getNearbyEntities(3,3,3).toArray();
-        if(!event.getPlayer().getUniqueId().equals(playerData.getBukkitPlayer().getUniqueId()))
-            return;
-        if(playerData.getBukkitPlayer().getAllowFlight() /*|| playerData.getBukkitPlayer().isInsideVehicle() */)
-            return;
-        //if (Arrays.stream(entities).anyMatch(entity -> entity instanceof Vehicle)) return;
+    @Override
+    public void onPacketPlayReceive(PacketPlayReceiveEvent event) {
+        if (event.getPacketId() == PacketType.Play.Client.POSITION || event.getPacketId() == PacketType.Play.Client.POSITION_LOOK) {
+//            final Object[] entities = playerData.getBukkitPlayer().getNearbyEntities(3, 3, 3).toArray();
+            WrappedPacketInFlying packet = new WrappedPacketInFlying(event.getNMSPacket());
+            if (!event.getPlayer().getUniqueId().equals(playerData.getBukkitPlayer().getUniqueId()))
+                return;
+            if (playerData.getBukkitPlayer().getAllowFlight() /*|| playerData.getBukkitPlayer().isInsideVehicle() */)
+                return;
 
-        Location from = event.getFrom();
-        Location to = event.getTo();
-
-        //boolean inAir = false;
-        boolean inAir = !(to.getY() % (1d/64d) < 0.0001);
-        /*for(Block block : Utilities.getNearbyBlocksHorizontally(to, 1)) {
-            if(block.getType() != Material.AIR) {
-                inAir = false;
-                break;
-            } else {
-                inAir = true;
+            Location to = new Location(playerData.getBukkitPlayer().getWorld(), packet.getPosition().getX(), packet.getPosition().getY(), packet.getPosition().getZ());
+            if (from == null) {
+                from = to;
             }
-        }*/
-        playerData.airTicks = inAir ? playerData.getAirTicks() + 1 : 0;
+            boolean inAir = !(to.getY() % (1d / 64d) < 0.0001) || !(from.getY() % (1d / 64d) < 0.0001);
 
-        List<MovementData.MovementType> movementTypes = new ArrayList<>();
-        if(from.getX() != to.getX())
-            movementTypes.add(MovementData.MovementType.X);
-        if(from.getY() != to.getY())
-            movementTypes.add(MovementData.MovementType.Y);
-        if(from.getZ() != to.getZ())
-            movementTypes.add(MovementData.MovementType.Z);
-        if (from.getYaw() != to.getYaw())
-            movementTypes.add(MovementData.MovementType.YAW);
-        if (from.getPitch() != to.getPitch())
-            movementTypes.add(MovementData.MovementType.PITCH);
-        MovementData movementData = new MovementData(from, to, movementTypes);
-        final BoundingBox boundingBox = new BoundingBox(from.getX(), from.getY(), from.getZ(), event.getPlayer().getWorld());
+            playerData.airTicks = inAir ? playerData.getAirTicks() + 1 : 0;
 
-        movementData.getNearbyEntities().set(entities);
+            List<MovementData.MovementType> movementTypes = new ArrayList<>();
+            if (from.getX() != to.getX())
+                movementTypes.add(MovementData.MovementType.X);
+            if (from.getY() != to.getY())
+                movementTypes.add(MovementData.MovementType.Y);
+            if (from.getZ() != to.getZ())
+                movementTypes.add(MovementData.MovementType.Z);
+            if (from.getYaw() != to.getYaw())
+                movementTypes.add(MovementData.MovementType.YAW);
+            if (from.getPitch() != to.getPitch())
+                movementTypes.add(MovementData.MovementType.PITCH);
+            MovementData movementData = new MovementData(from, to, movementTypes);
+            final BoundingBox boundingBox = new BoundingBox(from.getX(), from.getY(), from.getZ(), event.getPlayer().getWorld());
 
-        playerData.getBoundingBox().set(boundingBox);
-        playerData.getBoundingBoxes().add(boundingBox);
+            playerData.getBoundingBox().set(boundingBox);
+            playerData.getBoundingBoxes().add(boundingBox);
 
-        this.handleCollisions(boundingBox, movementData);
+            this.handleCollisions(boundingBox, movementData);
 
-        //playerData.boundingBox = ReflectionsUtil.getBoundingBox(event.getPlayer());
-        //event.getPlayer().sendMessage(playerData.boundingBox.toString());
-        //playerData.nearGround = ReflectionsUtil.getCollidingBlocks(event.getPlayer(), ReflectionsUtil
-        //      .modifyBoundingBox(playerData.boundingBox, 0, -1,0,0,0,0)).size() > 0;
+            //playerData.boundingBox = ReflectionsUtil.getBoundingBox(event.getPlayer());
+            //event.getPlayer().sendMessage(playerData.boundingBox.toString());
+            //playerData.nearGround = ReflectionsUtil.getCollidingBlocks(event.getPlayer(), ReflectionsUtil
+            //      .modifyBoundingBox(playerData.boundingBox, 0, -1,0,0,0,0)).size() > 0;
 
-        // deltaY = Math.abs(from.getY() - to.getY());
+            // deltaY = Math.abs(from.getY() - to.getY());
 
-        long timestamp = System.currentTimeMillis();
-        playerData.getChecks().parallelStream().forEach(check -> check.handle(movementData, timestamp));
-        Utilities.water = 0;
+            long timestamp = System.currentTimeMillis();
+            playerData.getChecks().parallelStream().forEach(check -> check.handle(movementData, timestamp));
+            from = to;
+        }
     }
 
     private synchronized void handleCollisions(final BoundingBox boundingBox, MovementData movementData) {

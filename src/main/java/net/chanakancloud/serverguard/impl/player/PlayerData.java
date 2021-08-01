@@ -24,6 +24,7 @@ public class PlayerData {
     private static final Map<UUID, PlayerData> dataMap = new HashMap<>();
 
     public float airTicks = 0.0f;
+    public static PlayerData playerData;
     @Getter @Setter private boolean onAir = false;
     private final net.chanakancloud.serverguard.observable.Observable<BoundingBox> boundingBox = new net.chanakancloud.serverguard.observable.Observable<>(new BoundingBox(0, 0, 0, null));
     private final EvictingList<BoundingBox> boundingBoxes = new EvictingList<>(10);
@@ -45,10 +46,11 @@ public class PlayerData {
     @Setter private boolean extremePrejudice, banned;
 
     public PlayerData(@NonNull Player player) {
+        playerData = this;
         uuid = player.getUniqueId();
         timeCreated = System.currentTimeMillis();
         packetProcessor = new PacketProcessor(this);
-        movementProcessor = new MovementProcessor(this);
+        movementProcessor= new MovementProcessor(this);
         for (Class<? extends Check> checkClass : CheckManager.CHECK_CLASSES) {
             try {
                 checks.add(checkClass.getConstructor(PlayerData.class).newInstance(this));
@@ -65,7 +67,7 @@ public class PlayerData {
      * @return the Bukkit player
      * @see Player
      */
-    public @NonNull Player getBukkitPlayer() {
+    public Player getBukkitPlayer() {
         return Bukkit.getPlayer(uuid);
     }
 
