@@ -8,15 +8,11 @@ import lombok.Getter;
 import net.chanakancloud.serverguard.impl.command.ServerguardCommand;
 import net.chanakancloud.serverguard.impl.player.PlayerData;
 import net.chanakancloud.serverguard.impl.player.PlayerDataManager;
-import net.chanakancloud.serverguard.impl.processor.Processor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Objects;
 
 @Getter
@@ -24,7 +20,6 @@ public class ServerGuard extends JavaPlugin {
     public static ServerGuard INSTANCE;
     private PacketEvents packetEvents;
     private double[] recentTps;
-    private ClassLoader materialAccessClassLoader;
 
     @Override
     public void onLoad() {

@@ -1,9 +1,13 @@
 package net.chanakancloud.serverguard.impl.check;
 
+import net.chanakancloud.serverguard.impl.check.impl.combat.killaura.KillAuraA;
+import net.chanakancloud.serverguard.impl.check.impl.combat.killaura.KillAuraB;
+import net.chanakancloud.serverguard.impl.check.impl.combat.reach.ReachA;
 import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyA;
 import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyB;
 import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyC;
-import net.chanakancloud.serverguard.impl.check.impl.movement.fly.FlyD;
+import net.chanakancloud.serverguard.impl.check.impl.movement.speed.SpeedA;
+import net.chanakancloud.serverguard.impl.check.impl.player.fastuse.FastUseA;
 import net.chanakancloud.serverguard.impl.check.impl.test.SensitivityA;
 
 import java.util.List;
@@ -14,7 +18,10 @@ public class CheckManager {
             FlyA.class,
             FlyB.class,
             FlyC.class,
-            FlyD.class,
+            FastUseA.class,
+            SpeedA.class,
+            ReachA.class,
+            KillAuraA.class,
             SensitivityA.class
     );
 

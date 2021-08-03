@@ -4,20 +4,24 @@ import io.github.retrooper.packetevents.event.impl.PacketPlayReceiveEvent;
 import io.github.retrooper.packetevents.packettype.PacketType;
 import io.github.retrooper.packetevents.packetwrappers.play.in.flying.WrappedPacketInFlying;
 import live.chanakancloud.taputils.utils.MiscUtils;
+import lombok.Getter;
 import lombok.NonNull;
 import net.chanakancloud.serverguard.data.BoundingBox;
 import net.chanakancloud.serverguard.impl.common.MovementData;
 import net.chanakancloud.serverguard.impl.player.PlayerData;
 import net.chanakancloud.serverguard.impl.processor.Processor;
+import net.chanakancloud.serverguard.utils.Utilities;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MovementProcessor extends Processor {
-    private Location from = null;
+    @Getter private Location from = null;
+    @Getter private Location to = null;
 
     public MovementProcessor(@NonNull PlayerData playerData) {
         super(playerData);
@@ -25,7 +29,7 @@ public class MovementProcessor extends Processor {
 
     @Override
     public void onPacketPlayReceive(PacketPlayReceiveEvent event) {
-        if (event.getPacketId() == PacketType.Play.Client.POSITION || event.getPacketId() == PacketType.Play.Client.POSITION_LOOK) {
+        if (event.getPacketId() == PacketType.Play.Client.POSITION || event.getPacketId() == PacketType.Play.Client.POSITION_LOOK || event.getPacketId() == PacketType.Play.Client.FLYING || event.getPacketId() == PacketType.Play.Client.LOOK) {
 //            final Object[] entities = playerData.getBukkitPlayer().getNearbyEntities(3, 3, 3).toArray();
             WrappedPacketInFlying packet = new WrappedPacketInFlying(event.getNMSPacket());
             if (!event.getPlayer().getUniqueId().equals(playerData.getBukkitPlayer().getUniqueId()))
@@ -33,13 +37,15 @@ public class MovementProcessor extends Processor {
             if (playerData.getBukkitPlayer().getAllowFlight() /*|| playerData.getBukkitPlayer().isInsideVehicle() */)
                 return;
 
-            Location to = new Location(playerData.getBukkitPlayer().getWorld(), packet.getPosition().getX(), packet.getPosition().getY(), packet.getPosition().getZ());
+            to = new Location(playerData.getBukkitPlayer().getWorld(), packet.getPosition().getX(), packet.getPosition().getY(), packet.getPosition().getZ(), packet.getYaw(), packet.getPitch());
             if (from == null) {
                 from = to;
             }
+
             boolean inAir = !(to.getY() % (1d / 64d) < 0.0001) || !(from.getY() % (1d / 64d) < 0.0001);
 
             playerData.airTicks = inAir ? playerData.getAirTicks() + 1 : 0;
+            playerData.setOnAir(inAir);
 
             List<MovementData.MovementType> movementTypes = new ArrayList<>();
             if (from.getX() != to.getX())

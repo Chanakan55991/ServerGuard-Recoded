@@ -1,5 +1,6 @@
 package net.chanakancloud.serverguard.impl.command;
 
+import live.chanakancloud.taputils.utils.MiscUtils;
 import net.chanakancloud.serverguard.impl.check.Check;
 import net.chanakancloud.serverguard.impl.check.CheckManager;
 import net.chanakancloud.serverguard.impl.meta.MetadataManager;
@@ -18,7 +19,7 @@ public class ServerguardCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("serverguard.command")) {
-            sender.sendMessage("§cNo permission.");
+            MiscUtils.sendToCommandSender(sender, "&cNo permission.");
             return true;
         }
         if (args.length < 2) {
@@ -31,8 +32,7 @@ public class ServerguardCommand implements CommandExecutor {
             sender.sendMessage("§cPlayer is offline.");
         else {
             switch (args[0].toLowerCase()) {
-                case "savemeta":
-                case "savemetadata": {
+                case "savemeta", "savemetadata" -> {
                     if (sender instanceof Player)
                         sender.sendMessage("§cOnly the terminal can save metadata.");
                     else {
@@ -42,9 +42,8 @@ public class ServerguardCommand implements CommandExecutor {
                         sender.sendMessage("§7Metadata for §f" + target.getName() + "§7:");
                         sender.sendMessage(MetadataManager.getMetadataJson(targetPlayerData));
                     }
-                    break;
                 }
-                case "debug": {
+                case "debug" -> {
                     if (sender instanceof ConsoleCommandSender)
                         sender.sendMessage("§cThe terminal cannot debug.");
                     else {
@@ -70,7 +69,6 @@ public class ServerguardCommand implements CommandExecutor {
                             sender.sendMessage("§7Now debugging §f" + checkClass.getSimpleName() + " §7for §f" + target.getName() + "§7.");
                         }
                     }
-                    break;
                 }
             }
         }

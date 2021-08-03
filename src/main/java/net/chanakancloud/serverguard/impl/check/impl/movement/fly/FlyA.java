@@ -41,7 +41,7 @@ public class FlyA extends Check {
 
         //detect water only
 
-        if(Utilities.isNearLiquid(movementData.to) || movementData.getTouchingLiquid().get() || movementData.getTouchingClimbable().get())
+        if(Utilities.isNearLiquid(movementData.to) || movementData.getTouchingLiquid().get())
         {
             playerData.flyThreshold -= playerData.flyThreshold > 0 ? 0.1f : 0;
             playerData.airTicks = 0;

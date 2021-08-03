@@ -111,6 +111,10 @@
                                     <pattern>live.chanakancloud.taputils</pattern>
                                     <shadedPattern>live.chanakancloud.taputils</shadedPattern> <!--relocate packetevents package. choose something unique!-->
                                 </relocation>
+                                <relocation>
+                                    <pattern>io.github.retrooper.packetevents</pattern>
+                                    <shadedPattern>io.github.retrooper.packetevents</shadedPattern> <!--relocate packetevents package. choose something unique!-->
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>

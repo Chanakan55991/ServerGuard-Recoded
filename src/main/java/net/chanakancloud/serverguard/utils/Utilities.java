@@ -13,6 +13,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BoundingBox;
 
 import java.util.*;
@@ -67,9 +69,42 @@ public class Utilities {
         return blocks;
     }
 
+    public static int getPotionLevel(final Player player, final PotionEffectType effect) {
+        final String effectName = effect.getName();
+
+        if (!player.hasPotionEffect(effect)) return 0;
+
+        for (final PotionEffect potionEffect : player.getActivePotionEffects()) {
+            if (potionEffect.getType().getName() == effectName) {
+                return potionEffect.getAmplifier() + 1;
+            }
+        }
+
+        return 0;
+    }
+
+    public static double getBlockFriction(final Location to) {
+        try {
+            return (getBlockAsync(to).getType()) == Material.PACKED_ICE
+                    || getBlockAsync(to).getType() == Material.ICE ? 0.9800000190734863
+                    : (getBlockAsync(to).getType()).toString().toLowerCase().contains("slime") ? 0.800000011920929
+                    : 0.6000000238418579;
+        } catch (final Exception ignored) {
+            return 0.6000000238418579;
+        }
+    }
+
     public static boolean isBed(Block block) {
         Material type = block.getType();
         return type.name().endsWith("BED");
+    }
+
+    private static Block getBlockAsync(final Location location) {
+        if (location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {
+            return location.getWorld().getBlockAt(location);
+        } else {
+            return null;
+        }
     }
 
     /*

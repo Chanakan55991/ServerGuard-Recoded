@@ -29,8 +29,10 @@ public class FlyC extends Check {
 
 
         if(movementData.from.getY() % (1D/64D) < 0.0001 ||
-                movementData.to.getY() % (1D/64D) < 0.0001)
+                movementData.to.getY() % (1D/64D) < 0.0001) {
+            buffer = Math.max(0, buffer - 1.25);
             return;
+        }
 
         if(player.isGliding())
             return;
@@ -55,12 +57,12 @@ public class FlyC extends Check {
             playerData.airTicks = 0;
             return;
         }
-        if(playerData.airTicks > 4 && !(movementData.to.getY() % (1d/64d) < 0.0001)) {
+        if(playerData.airTicks > 4 && !(movementData.to.getY() % (1d/64d) < 0.0001) && deltaY > -0.1) {
             ++ticks;
-            if(ticks > 2 && Math.abs(estimation - deltaY) > 0.01) {
+            if(ticks > 4 && Math.abs(estimation - deltaY) > 0.01) {
                 buffer += 1.5;
 
-                if(buffer > 2.2)
+                if(buffer > 4)
                     flag("estimation=" + estimation, "deltaY=" + deltaY);
             } else {
                 buffer = Math.max(0, buffer - 1.25);
